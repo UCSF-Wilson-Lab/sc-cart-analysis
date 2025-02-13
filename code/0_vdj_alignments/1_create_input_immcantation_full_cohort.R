@@ -2,7 +2,7 @@
 
 # START ----
 # Workflow for processing combined analysis object
-#  - Prior to running this code set working directory to 'impact-analysis/code/0_vdj_alignments'
+#  - Prior to running this code set working directory to 'sc-cart-analysis/code/0_vdj_alignments'
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(dplyr))
@@ -12,7 +12,7 @@ suppressPackageStartupMessages(library(impactSingleCellToolkit))
 
 
 # INPUT and OUTPUT Directories
-param_file_fh = "../../input/input_full_cohort_analysis.json"
+param_file_fh = "../../input/input_full_cohort_analysis_cart.json"
 params        = fromJSON(file = param_file_fh)
 
 # INPUT

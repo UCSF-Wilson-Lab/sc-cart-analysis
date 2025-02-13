@@ -13,7 +13,7 @@
 #           - using singularity/apptainer, the paths you specificy are to locations on the server 
 #             not within the immcantation image
 #           - use full file and directory PATHs, no relative PATHs
-# apptainer run immcantation_suite-4.5.0.sif [PATH]/impact-analysis/code/0_vdj_alignments/2_run_immcantation.bash [PATH]/input_immcantation_one_patient [PATH]/results_immcantation_one_patient
+# apptainer run immcantation_suite-4.5.0.sif [PATH]/sc-cart-analysis/code/0_vdj_alignments/2_run_immcantation.bash [PATH]/input_immcantation_one_patient [PATH]/results_immcantation_one_patient
 
 
 # Arguments
@@ -36,13 +36,13 @@ BCR_DIST=0.15  # tested on full cohort
 changeo-10x -s $READS_BCR -a $ANNOTATIONS_BCR -x $BCR_DIST -n BCR_CSFPB -o $OUT_DIR_BCR -p $NPROC -t ig -m $MODEL -f airr
 
 # >>> TCR
-#changeo-10x -s $READS_TCR -a $ANNOTATIONS_TCR -x 0.00 -n TCR_CSFPB -o $OUT_DIR_TCR -p $NPROC -t tr -m $MODEL -f airr
+changeo-10x -s $READS_TCR -a $ANNOTATIONS_TCR -x 0.00 -n TCR_CSFPB -o $OUT_DIR_TCR -p $NPROC -t tr -m $MODEL -f airr
 
 
 # >>> process TCR Alpha chain results
-#cd $OUT_DIR_TCR
-#DefineClones.py -d TCR_CSFPB_light_productive-T_sc-pass.tsv --act first --model $MODEL --dist 0.00
-#CreateGermlines.py -d TCR_CSFPB_light_productive-T_sc-pass_clone-pass.tsv -o TCR_CSFPB_light_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_TRA*
+cd $OUT_DIR_TCR
+DefineClones.py -d TCR_CSFPB_light_productive-T_sc-pass.tsv --act first --model $MODEL --dist 0.00
+CreateGermlines.py -d TCR_CSFPB_light_productive-T_sc-pass_clone-pass.tsv -o TCR_CSFPB_light_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_TRA*
 
 # >>> process BCR light chain results
 cd $OUT_DIR_BCR
