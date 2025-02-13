@@ -47,7 +47,7 @@ for (sample in names(bcr_list)) {
   filtered_results_exist <- TRUE
   files        <- list.files(sample_dir)
   filtered_csv <- files[grep("\\.csv",files)]
-  filtered_csv <- filtered_csv[grep("filtered",filtered_csv)]
+  filtered_csv <- filtered_csv[grep("all",filtered_csv)]
   info         <- file.info(file.path(sample_dir,filtered_csv))
   if(info$size == as.integer(0)){
     filtered_results_exist <- FALSE
@@ -74,7 +74,7 @@ for (sample in names(tcr_list)) {
   filtered_results_exist <- TRUE
   files        <- list.files(sample_dir)
   filtered_csv <- files[grep("\\.csv",files)]
-  filtered_csv <- filtered_csv[grep("filtered",filtered_csv)]
+  filtered_csv <- filtered_csv[grep("all",filtered_csv)]
   info         <- file.info(file.path(sample_dir,filtered_csv))
   if(info$size == as.integer(0)){
     filtered_results_exist <- FALSE
@@ -93,14 +93,14 @@ for (sample in names(tcr_list)) {
 
 ## BCR 
 generateInputFilesImmcantation(vdj.results.dir = vdj_bcr_dir,
-                               contig.annotation.file = "filtered_contig_annotations.csv",
-                               contig.fasta.file = "filtered_contig.fasta",
+                               contig.annotation.file = "all_contig_annotations.csv",
+                               contig.fasta.file = "all_contig.fasta",
                                output.file.prefix = "input_bcr",
                                output.dir = results_dir)
 
 ## TCR 
 generateInputFilesImmcantation(vdj.results.dir = vdj_tcr_dir,
-                               contig.annotation.file = "filtered_contig_annotations.csv",
-                               contig.fasta.file = "filtered_contig.fasta",
+                               contig.annotation.file = "all_contig_annotations.csv",
+                               contig.fasta.file = "all_contig.fasta",
                                output.file.prefix = "input_tcr",
                                output.dir = results_dir)

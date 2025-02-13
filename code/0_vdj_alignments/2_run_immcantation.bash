@@ -13,7 +13,7 @@
 #           - using singularity/apptainer, the paths you specificy are to locations on the server 
 #             not within the immcantation image
 #           - use full file and directory PATHs, no relative PATHs
-# apptainer run immcantation_suite-4.5.0.sif [PATH]/sc-cart-analysis/code/0_vdj_alignments/2_run_immcantation.bash [PATH]/input_immcantation_one_patient [PATH]/results_immcantation_one_patient
+# apptainer run immcantation_suite-4.5.0.sif [PATH]/sc-cart-analysis/code/0_vdj_alignments/2_run_immcantation.bash [PATH]/input_immcantation_full_cohort [PATH]/results_immcantation_run1
 
 
 # Arguments
@@ -21,12 +21,12 @@
 DATA_DIR=$1
 OUT_DIR=$2
 
-READS_BCR=$DATA_DIR\/input_bcr_filtered_contig.fasta
-READS_TCR=$DATA_DIR\/input_tcr_filtered_contig.fasta
-ANNOTATIONS_BCR=$DATA_DIR\/input_bcr_filtered_contig_annotations.csv
-ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_filtered_contig_annotations.csv
-OUT_DIR_BCR=$OUT_DIR\/BCR_CSFPB
-OUT_DIR_TCR=$OUT_DIR\/TCR_CSFPB
+READS_BCR=$DATA_DIR\/input_bcr_all_contig.fasta
+READS_TCR=$DATA_DIR\/input_tcr_all_contig.fasta
+ANNOTATIONS_BCR=$DATA_DIR\/input_bcr_all_contig_annotations.csv
+ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_all_contig_annotations.csv
+OUT_DIR_BCR=$OUT_DIR\/BCR_CSFPB_ALL
+OUT_DIR_TCR=$OUT_DIR\/TCR_CSFPB_ALL
 MODEL=aa
 NPROC=20
 
