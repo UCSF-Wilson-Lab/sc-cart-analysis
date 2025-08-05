@@ -29,6 +29,8 @@ params        = fromJSON(file = param_file_fh)
 metadata_fh   = params$metadata_file
 metadata      = read.csv(metadata_fh,stringsAsFactors = F,check.names = F)
 THREADS       = params$threads
+# bool for whether to use pre-filtered GEX matrices
+use.filtered.gex = TRUE
 
 # OUTPUT Results Directories
 plot_dir     = params$plot_directory
@@ -41,7 +43,7 @@ fh_raw_seurat_obj <- file.path(objects_dir,"seurat_obj.combined.RData")
 fh_raw_csp_mtx <- file.path(objects_dir,"csp_count_matrix.combined.RData")
 
 # Increase size of ENV
-options(future.globals.maxSize= 891289600)
+options(future.globals.maxSize= 40000*1024^2)
 
 
 # 1. Separate samples by batch/assay ----
@@ -51,6 +53,24 @@ metadata$run_group <- paste(metadata$run,metadata$type,sep = ":")
 metadata_gex       <- metadata[metadata$type %in% c("counts","counts_gex"),]
 metadata_csp       <- metadata[metadata$type %in% c("counts","counts_csp"),]
 
+# If using filtered matrices, check if they exist and omit samples that don't have it
+if(use.filtered.gex){
+  metadata_gex$filt_status <- "no"
+  
+  for (i in 1:nrow(metadata_gex)) {
+    row_df        <- metadata_gex[i,]
+    filt_dir      <- row_df$results_directory_path
+    filt_dir      <- str_replace_all(filt_dir,"multi_counts","multi_counts_filt")
+    status_bool   <- dir.exists(filt_dir)
+    if(status_bool){
+      metadata_gex[i,"filt_status"] <- "yes"
+    }
+  }
+  
+  metadata_gex <- metadata_gex[metadata_gex$filt_status %in% "yes",]
+  metadata_gex$filt_status <- NULL
+}
+
 run_metadata_gex_list <- split(metadata_gex,metadata_gex$run_group)
 run_metadata_csp_list <- split(metadata_csp,metadata_csp$run_group)
 
@@ -59,22 +79,31 @@ run_metadata_csp_list <- split(metadata_csp,metadata_csp$run_group)
 
 # makeRunInputMtx
 # - output.type = c("gex","csp")
-makeRunInputMtx <- function(runID ,run_metadata_list,THREADS,
+makeRunInputMtx <- function(runID ,run_metadata_list,THREADS,use.filtered.gex=TRUE,
                             output.type = "gex",min.genes.gex=700,min.genes.csp=9) {
   run          <- tstrsplit(runID,":")[[1]]
   type         <- tstrsplit(runID,":")[[2]]
   multi.status <- FALSE
   if(type == "counts"){
     multi.status <- TRUE
+    
+    if(use.filtered.gex){
+      multi.status <- FALSE
+    }
   }
   
   run_metadata <- run_metadata_list[[runID]]
   run_metadata <- run_metadata[run_metadata$type %in% type,]
   
   # Get run directory and sample vector
+  counts_dir_name <- "multi_counts/"
+  if(output.type == "gex"){
+    if(use.filtered.gex){counts_dir_name <- "multi_counts_filt/"}
+  }
+  
   sample_dir_vec <- run_metadata$results_directory_path
   dataset_loc    <- tstrsplit(sample_dir_vec,"multi_counts/")[[1]] %>% unique()
-  dataset_loc    <- paste(dataset_loc,"multi_counts/",sep = "")
+  dataset_loc    <- paste(dataset_loc,counts_dir_name,sep = "")
   
   # Separate samples based on whether they are mult, gex only or csp only
   samples.vec   <- run_metadata$sample
@@ -90,7 +119,6 @@ makeRunInputMtx <- function(runID ,run_metadata_list,THREADS,
   
   return(gex.matrix)
 }
-
 gex_run_list <- names(run_metadata_gex_list) %>% as.list()
 csp_run_list <- names(run_metadata_csp_list) %>% as.list()
 
@@ -104,16 +132,20 @@ max.genes.per.cell <- NULL
 
 # CSP input matrix
 csp_mtx_list <- lapply(csp_run_list, makeRunInputMtx,
-                       run_metadata_list=run_metadata_csp_list,
+                       run_metadata_list=run_metadata_csp_list,use.filtered.gex=FALSE,
                        THREADS=THREADS,output.type = "csp",min.genes.csp=1)
 merged_csp_mtx <- do.call("cbind",csp_mtx_list)
 
 # GEX input matrix
 gex_mtx_list <- lapply(gex_run_list, makeRunInputMtx,
-                       run_metadata_list=run_metadata_gex_list,
+                       run_metadata_list=run_metadata_gex_list,use.filtered.gex=use.filtered.gex,
                        THREADS=THREADS,output.type = "gex",min.genes.gex=400)
-merged_gex_mtx <- do.call("cbind",gex_mtx_list)
+#merged_gex_mtx <- do.call("cbind",gex_mtx_list)
 
+### Merge based on the fact the samples have different numbers of rows
+common_rows          <- Reduce(intersect, lapply(gex_mtx_list, rownames))
+gex_mtx_list_aligned <- lapply(gex_mtx_list, function(m) m[common_rows, , drop = FALSE])
+merged_gex_mtx       <- do.call("cbind", gex_mtx_list_aligned)
 
 
 # 3. Create Seurat Objects for GEX and CSP ----
@@ -139,12 +171,8 @@ sample_cell_counts        <- sample_cell_counts[sample_cell_counts$Freq > LOW_CE
 cells_to_keep  <- names(seurat.obj$sample[seurat.obj$sample %in% sample_cell_counts$sample])
 seurat.obj     <- seurat.obj[,colnames(seurat.obj) %in% cells_to_keep]
 
-# 4. Identify Doublets ----
-set.seed(1234)
 
-seurat.obj <- findDoublets(seurat.obj,sample.col = "sample",threads = THREADS)
-
-# 5. Add in CSP and overlap both assays ----
+# 4. Add in CSP and overlap both assays ----
 cells_csp <- colnames(merged_csp_mtx)
 cells_gex <- colnames(seurat.obj)
 overlap   <- cells_csp[cells_csp %in% cells_gex]
