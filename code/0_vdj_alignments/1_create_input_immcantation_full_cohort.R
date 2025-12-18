@@ -90,6 +90,8 @@ for (sample in names(tcr_list)) {
 
 
 # Generate input to immcantation
+# - originally used all_contig_annotations.csv & all_contig.fasta for BCR/TCR
+# - now all contigs are used for BCR but not TCR
 
 ## BCR 
 generateInputFilesImmcantation(vdj.results.dir = vdj_bcr_dir,
@@ -98,9 +100,16 @@ generateInputFilesImmcantation(vdj.results.dir = vdj_bcr_dir,
                                output.file.prefix = "input_bcr",
                                output.dir = results_dir)
 
-## TCR 
+## TCR
 generateInputFilesImmcantation(vdj.results.dir = vdj_tcr_dir,
                                contig.annotation.file = "all_contig_annotations.csv",
                                contig.fasta.file = "all_contig.fasta",
+                               output.file.prefix = "input_tcr",
+                               output.dir = results_dir)
+
+## TCR - filtered
+generateInputFilesImmcantation(vdj.results.dir = vdj_tcr_dir,
+                               contig.annotation.file = "filtered_contig_annotations.csv",
+                               contig.fasta.file = "filtered_contig.fasta",
                                output.file.prefix = "input_tcr",
                                output.dir = results_dir)
