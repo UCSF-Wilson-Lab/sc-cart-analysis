@@ -22,7 +22,7 @@ library(DoubletFinder)
 library(impactSingleCellToolkit)
 
 # INPUT and OUTPUT Directories
-param_file_fh = "../input/input_full_cohort_analysis_cart.json"
+param_file_fh = "../input/input_full_cohort_analysis_cart_wynton.json"
 params        = fromJSON(file = param_file_fh)
 
 # INPUT

@@ -22,11 +22,11 @@ DATA_DIR=$1
 OUT_DIR=$2
 
 READS_BCR=$DATA_DIR\/input_bcr_all_contig.fasta
-#READS_TCR=$DATA_DIR\/input_tcr_all_contig.fasta
-READS_TCR=$DATA_DIR\/input_tcr_filtered_contig.fasta
+READS_TCR=$DATA_DIR\/input_tcr_all_contig.fasta
+#READS_TCR=$DATA_DIR\/input_tcr_filtered_contig.fasta
 ANNOTATIONS_BCR=$DATA_DIR\/input_bcr_all_contig_annotations.csv
-#ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_all_contig_annotations.csv
-ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_filtered_contig_annotations.csv
+ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_all_contig_annotations.csv
+#ANNOTATIONS_TCR=$DATA_DIR\/input_tcr_filtered_contig_annotations.csv
 OUT_DIR_BCR=$OUT_DIR\/BCR_CSFPB_ALL
 OUT_DIR_TCR=$OUT_DIR\/TCR_CSFPB_ALL
 MODEL=aa
@@ -35,7 +35,7 @@ NPROC=20
 BCR_DIST=0.15  # tested on full cohort
 
 # >>> BCR
-changeo-10x -s $READS_BCR -a $ANNOTATIONS_BCR -x $BCR_DIST -n BCR_CSFPB -o $OUT_DIR_BCR -p $NPROC -t ig -m $MODEL -f airr
+#changeo-10x -s $READS_BCR -a $ANNOTATIONS_BCR -x $BCR_DIST -n BCR_CSFPB -o $OUT_DIR_BCR -p $NPROC -t ig -m $MODEL -f airr
 
 
 # >>> TCR
@@ -48,10 +48,10 @@ DefineClones.py -d TCR_CSFPB_light_productive-T_sc-pass.tsv --act first --model 
 CreateGermlines.py -d TCR_CSFPB_light_productive-T_sc-pass_clone-pass.tsv -o TCR_CSFPB_light_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_TRA*
 
 # >>> process BCR light chain results
-cd $OUT_DIR_BCR
-DefineClones.py -d BCR_CSFPB_light_productive-T_sc-pass.tsv --act first --model $MODEL --dist $BCR_DIST
-CreateGermlines.py -d BCR_CSFPB_light_productive-T_sc-pass_clone-pass.tsv -o BCR_CSFPB_light_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_IG*
+#cd $OUT_DIR_BCR
+#DefineClones.py -d BCR_CSFPB_light_productive-T_sc-pass.tsv --act first --model $MODEL --dist $BCR_DIST
+#CreateGermlines.py -d BCR_CSFPB_light_productive-T_sc-pass_clone-pass.tsv -o BCR_CSFPB_light_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_IG*
 
 ## Heavy chain needs germ-pass file (TEMPORARY)
-CreateGermlines.py -d BCR_CSFPB_heavy_clone-pass.tsv -o BCR_CSFPB_heavy_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_IG*
+#CreateGermlines.py -d BCR_CSFPB_heavy_clone-pass.tsv -o BCR_CSFPB_heavy_germ-pass.tsv -g dmask --cloned -r /usr/local/share/germlines/imgt/human/vdj/imgt_human_IG*
 
